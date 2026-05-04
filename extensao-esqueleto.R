@@ -657,7 +657,7 @@ linha_estado[cols_contagem] = colSums(base[cols_contagem], na.rm = TRUE)
 linha_estado$CODMUNRES = 25
 SINASC_PB <- rbind(linha_estado, base)
 
-SINASC_PB$NIVEL <- c("UF", rep("MUNICIPIO", nrow(SINASC_AC)-1))
+SINASC_PB$NIVEL <- c("UF", rep("MUNICIPIO", nrow(SINASC_PB)-1))
 SINASC_PB$ANO   <- 2015
 
 SINASC_PB <- SINASC_PB[, c("ANO","NIVEL","CODMUNRES",
