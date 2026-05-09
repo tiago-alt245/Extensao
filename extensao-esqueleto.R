@@ -706,6 +706,7 @@ dados_sim1 = dados_sim1[UF == "25",]
 # 41: 70839     42: 37984     43: 82349
 # 50: 15457     51: 17095     52: 38854     53: 11975
 
+
 # Exportar o arquivo com o nome dados_sim_2.csv
 write.csv(dados_sim1, "dados_sim2.csv")
 
