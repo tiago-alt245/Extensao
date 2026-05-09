@@ -324,7 +324,7 @@ IM_MD <- dados_sinasc_2 %>%
   group_by(CODMUNRES) %>%
   summarise(IM_MD = round(mean(IDADEMAE, na.rm  = TRUE),2))
 base = merge(base, IM_MD, by = "CODMUNRES", all.x = TRUE)
-  
+
 IM_DP <- dados_sinasc_2 %>%
   group_by(CODMUNRES) %>%
   summarise(IM_DP = round(sd(IDADEMAE, na.rm = TRUE),2))
@@ -339,7 +339,7 @@ escolaridade <- dados_sinasc_2 %>%
          EM_M = ifelse(ESCMAE2010 == "Médio (antigo 2° Grau",1,0),
          EM_SI = ifelse(ESCMAE2010 == "Superior incompleto",1,0),
          EM_SC = ifelse(ESCMAE2010 == "Superior completo",1,0)
-          ) %>%
+  ) %>%
   group_by(CODMUNRES) %>%
   summarise(EM_S = sum(EM_S, na.rm = TRUE),
             EM_FI = sum(EM_FI, na.rm = TRUE),
@@ -357,7 +357,7 @@ raça <- dados_sinasc_2 %>%
          TGRC_A = ifelse(RACACORMAE == "Amarela",1,0),
          TGRC_PD = ifelse(RACACORMAE == "Parda",1,0),
          TGRC_I = ifelse(RACACORMAE == "Indígena",1,0)
-         ) %>%
+  ) %>%
   group_by(CODMUNRES) %>%
   summarise(TGRC_B = sum(TGRC_B, na.rm = TRUE),
             TGRC_PT = sum(TGRC_PT, na.rm = TRUE),
@@ -383,7 +383,7 @@ base <- merge(base, Companheiros, by = "CODMUNRES", all.x =  TRUE)
 gravidez_p_pp <- dados_sinasc_2 %>%
   mutate(TGPRI = ifelse(PARIDADE == "Nulípara",1,0),
          TGNPRI = ifelse(PARIDADE == "Multípara",1,0)
-         )%>%
+  )%>%
   group_by(CODMUNRES) %>%
   summarise(TGPRI = sum(TGPRI, na.rm = TRUE),
             TGNPRI = sum(TGNPRI, na.rm = TRUE))
@@ -430,10 +430,10 @@ base = merge(base,gestações, by = "CODMUNRES", all.x = TRUE)
 percentil_grv <- dados_sinasc_2 %>%
   group_by(CODMUNRES) %>%
   summarise(DG_P25 = quantile(SEMAGESTAC, probs = 0.25, na.rm = TRUE),
-         DG_P50 = quantile(SEMAGESTAC, probs = 0.50, na.rm = TRUE),
-         DG_P75 = quantile(SEMAGESTAC, probs = 0.75, na.rm = TRUE),
-         DG_MD = round(mean(SEMAGESTAC, na.rm = TRUE),2),
-         DG_DP = round(sd(SEMAGESTAC, na.rm = TRUE),2))
+            DG_P50 = quantile(SEMAGESTAC, probs = 0.50, na.rm = TRUE),
+            DG_P75 = quantile(SEMAGESTAC, probs = 0.75, na.rm = TRUE),
+            DG_MD = round(mean(SEMAGESTAC, na.rm = TRUE),2),
+            DG_DP = round(sd(SEMAGESTAC, na.rm = TRUE),2))
 
 base = merge(base,percentil_grv, by = "CODMUNRES", all.x = TRUE)
 
@@ -445,7 +445,7 @@ pre_natal <- dados_sinasc_2 %>%
          TKC_IT = ifelse(KOTELCHUCK == "Intermediário",1,0),
          TKC_AD = ifelse(KOTELCHUCK == "Adequado",1,0),
          TKC_MAD = ifelse(KOTELCHUCK == "Mais que adequado",1,0)
-         ) %>%
+  ) %>%
   group_by(CODMUNRES) %>%
   summarise(TKC_NR = sum(TKC_NR, na.rm = TRUE),
             TKC_ID = sum(TKC_ID, na.rm = TRUE),
@@ -466,11 +466,11 @@ peregrinação <- dados_sinasc_2 %>%
 base = merge(base, peregrinação, by = "CODMUNRES", all.x = TRUE)
 
 #Tipo de parto:
-  
+
 partos <- dados_sinasc_2 %>%
   mutate(TPV = ifelse(PARTO == "Vaginal",1,0),
          TPC = ifelse(PARTO == "Cesário",1,0)
-         ) %>%
+  ) %>%
   group_by(CODMUNRES) %>%
   summarise(TPV = sum(TPV, na.rm = TRUE),
             TPC = sum(TPC, na.rm = TRUE))
@@ -538,8 +538,8 @@ base = merge(base,local_nasc, by = "CODMUNRES", all.x = TRUE)
 
 sexo_nasc <- dados_sinasc_2 %>%
   mutate(TRS_M = ifelse(SEXO == "Masculino",1,0),
-       TRS_F = ifelse(SEXO == "Feminino",1,0)
-       ) %>%
+         TRS_F = ifelse(SEXO == "Feminino",1,0)
+  ) %>%
   group_by(CODMUNRES) %>%
   summarise(TRS_M = sum(TRS_M, na.rm = TRUE),
             TRS_F = sum(TRS_F, na.rm = TRUE))
@@ -578,7 +578,7 @@ categoria_peso_nasc <- dados_sinasc_2 %>%
   mutate(TRP_BP = ifelse(F_PESO == "Baixo peso",1,0),
          TRP_N = ifelse(F_PESO == "Peso normal",1,0),
          TRP_M = ifelse(F_PESO == "Macrossomia",1,0)
-         )%>%
+  )%>%
   group_by(CODMUNRES) %>%
   summarise(TRP_BP = sum(TRP_BP,na.rm = TRUE),
             TRP_N = sum(TRP_N,na.rm = TRUE),
@@ -603,7 +603,7 @@ base = merge(base,pig, by = "CODMUNRES", all.x = TRUE)
 apgar_nasc <- dados_sinasc_2 %>%
   mutate(TRAPG5_B = ifelse(APGAR5 < 7,1,0),
          TRAPG5_N = ifelse(APGAR5 >= 7,1,0),
-         )%>%
+  )%>%
   group_by(CODMUNRES) %>%
   summarise(TRAPG5_B = sum(TRAPG5_B,na.rm = TRUE),
             TRAPG5_N = sum(TRAPG5_N,na.rm = TRUE))
@@ -621,7 +621,7 @@ base = merge(base,apgar_nasc2, by = "CODMUNRES", all.x = TRUE)
 anomalia_nasc <- dados_sinasc_2 %>%
   mutate(TRAC = ifelse(IDANOMAL == "Sim",1,0),
          TRSAC = ifelse(IDANOMAL == "Não",1,0)
-         )%>%
+  )%>%
   group_by(CODMUNRES) %>%
   summarise(TRAC = sum(TRAC,na.rm = TRUE),
             TRSAC = sum(TRSAC,na.rm = TRUE))
@@ -636,8 +636,8 @@ base <- base %>%
 #Determinação das contínuas:
 
 cols_contagem = setdiff(names(base), c("CODMUNRES","IM_MD","IM_DP","IM_P25",
-                                        "IM_P50","IM_P75","DG_MD","DG_DP","DG_P25","DG_P50","DG_P75","PESO_MD","PESO_DP","PESO_P25","PESO_P50","PESO_P75", "APG5_MD","APG5_DP"))
-   
+                                       "IM_P50","IM_P75","DG_MD","DG_DP","DG_P25","DG_P50","DG_P75","PESO_MD","PESO_DP","PESO_P25","PESO_P50","PESO_P75", "APG5_MD","APG5_DP"))
+
 base[cols_contagem][is.na(base[cols_contagem])] = 0
 
 
@@ -674,22 +674,12 @@ write.csv(SINASC_PB, "SINASC_PB.csv")
 ##################################
 # ETAPA 2: BANCO DE DADOS DO SIM
 ##################################
-<<<<<<< HEAD
 # Só inicie esta Etapa quando a professora orientar
 # Altere o script esqueleto nas partes que se refere a ETAPA 2 e envie para o repositório Extensao tendo feito o commite "Esqueleto atualizado na Etapa 2"
 # A partir de main crie a branch SIM
 # ESTANDO NA BRANCH SIM, NÃO ALTERE NADA NO SCRIPT REFERENTE A ETAPA 1 e só insira comandos na ETAPA 2
 # Para realizar as tarefas da ETAPA 2, ABRIR ANTES uma branch de nome SIM no main de Extensao e ir para ela
 
-=======
-
-# Só inicie esta Etapa quando a professora orientar
-# Altere o script esqueleto nas partes que se refere a ETAPA 2 e envie para o repositório Extensao tendo feito o commite "Esqueleto atualizado na Etapa 2"
-# A partir de main crie a branch SIM
-# ESTANDO NA BRANCH SIM, NÃO ALTERE NADA NO SCRIPT REFERENTE A ETAPA 1 e só insira comandos na ETAPA 2
-# Para realizar as tarefas da ETAPA 2, ABRIR ANTES uma branch de nome SIM no main de Extensao e ir para ela
-
->>>>>>> c8775f0c347cdc6da551564394d77a9f2e8aa16d
 # Tarefa 1. Leitura do banco de dados Mortalidade_Geral_2015 do SIM 2015 com 1264175 linhas e 87 colunas
 # verificar se a leitura foi feita corretamente e a estrutura dos dados
 # nomeie o banco de dados como dados_sim
@@ -699,58 +689,7 @@ dados_sim <-read.csv("Mortalidade_Geral_2015.csv", header = TRUE , sep = ";")
 # as colunas serão: 1, 3, 4, 8, 9, 10, 11, 14, 17, 35, 36, 37, 47, 77, 84
 # nomes das respectivas variáveis: CONTADOR, TIPOBITO, DTOBITO, DTNASC, IDADE, SEXO, RACACOR, ESC2010, CODMUNRES, TPMORTEOCO, 
 # OBITOGRAV, OBITOPUERP, CAUSABAS, TPOBITOCOR, MORTEPARTO
-<<<<<<< HEAD
 dados_sim1 <- dados_sim [ , c(1,3,4,8,9,10,11,14,17,35,36,37,47,77,84)]
-=======
-
-# Tarefa 3. Reduzir dados_sim_1 apenas para o estado que o aluno irá trabalhar (utilizar os dois primeiros dígitos de CODMUNRES), nomeando este novo banco de dados como dados_sim_2
-# Códigos das UF: 11: RO, 12: AC, 13: AM, 14: RR, 15: PA, 16: AP, 17: TO, 21: MA, 22: PI, 23: CE, 24: RN
-# 25: PB, 26: PE, 27: AL, 28: SE, 29: BA, 31: MG, 32: ES, 33: RJ, 35: SP, 41: PR, 42: SC, 43: RS
-# 50: MS, 51: MT, 52: GO, 53: DF 
-
-# observar abaixo o número de óbitos por UF de residência para certificar-se que seu banco de dados está correto
-# 11: 7948      12: 3517      13: 16675     14: 2091      15: 37365     16: 2946       17: 7402
-# 21: 33666     22: 19366     23: 55258     24: 20153     25: 26422     26: 62556      27: 19756     28: 13453     29: 87083
-# 31: 131274    32: 22332     33: 127714    35: 287645     
-# 41: 70839     42: 37984     43: 82349
-# 50: 15457     51: 17095     52: 38854     53: 11975
-
-# Exportar o arquivo com o nome dados_sim_2.csv
-
-
-# Ao concluir a Tarefa 3 da Etapa 2 commite e envie para o repositório REMOTO o script e dados_sim_2.csv com o comentário "Dados do estado UF (coloque o nome da UF) e script de sua obtenção"
-
-
-# Tarefa 4. Verificar em dados_sim_2 a frequência das categorias das seguintes variáveis: TIPOBITO, SEXO, RACACOR, 
-# TPMORTEOCO, OBITOGRAV, OBITOPUERP, CAUSABAS, TPOBITOCOR, MORTEPARTO
-
-
-# Tarefa 5. Atribuir para cada variável de dados_sim_2 como sendo NA a categoria de "Não informado ou Ignorado", geralmente com código 9
-# veja o dicionário do SIM para identificar qual o código das categorias de cada variável
-# Em variáveis quantitativas como IDADE verificar se existem valores como 99 para NA
-
-
-# Tarefa 6. Atribuir legendas para as categorias das variáveis qualitativas investigadas na tarefa 4.
-# Exemplo: dados_sim_2$TIPOBITO = factor(dados_sim_2$TIPOBITO, levels = c(1,2), 
-# labels = c("Fetal", "Não fetal")
-
-# ATENçÃO: 1. Na hora de escrever os labels, somente a primeira letra da palavra é maiúscula. Exemplo para SEXO: Feminino e Masculino
-#          2. Nesta Tarefa 6 não crie novas variáveis no banco de dados
-
-
-# Tarefa 7. Crie um banco de dados, de nome SIM_UF.csv (Exemplo: SIM_RJ.csv), contendo as 41 variáveis listadas no arquivo “Variáveis - Projeto - Tarefa 7 da Etapa 2.pdf”
-# Atenção:
-# 1. Para informações gerais utilize CAUSABAS, SEXO e IDADE
-# 2. Para informações fetais utilize TIPOBITO
-# 3. Para informações neonatais utilize TIPOBITO não fetal e IDADE entre 0 e 27 dias e RACACOR
-# 4. Para informações maternas utilize TPMORTEOCO, ESC e IDADE
-
-
-# Tarefa 8: Exporte o banco de dados com o nome SIM_UF.csv
-
-# Ao terminar a ETAPA 2 commite e envie para o repositório REMOTO com o comentário "Dados da UF e Script Etapa 2"
-# Faça um merge de script de SIM para main
->>>>>>> c8775f0c347cdc6da551564394d77a9f2e8aa16d
 
 # Tarefa 3. Reduzir dados_sim_1 apenas para o estado que o aluno irá trabalhar (utilizar os dois primeiros dígitos de CODMUNRES), nomeando este novo banco de dados como dados_sim_2
 # Códigos das UF: 11: RO, 12: AC, 13: AM, 14: RR, 15: PA, 16: AP, 17: TO, 21: MA, 22: PI, 23: CE, 24: RN
