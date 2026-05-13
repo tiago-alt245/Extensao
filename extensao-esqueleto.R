@@ -870,7 +870,6 @@ write.csv(SIM_PB,"SIM_PB.csv")
 #####################################################
 # Só inicie esta Etapa quando a professora orientar
 # ESTANDO NA BRANCH SINASC, NÃO ALTERE NADA NO SCRIPT REFERENTE A ETAPA 3
-
 # Tarefa 1. Acesso aos bancos de dados e obtenção da informação
 
 
