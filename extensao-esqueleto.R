@@ -878,8 +878,30 @@ write.csv(SIM_PB,"SIM_PB.csv")
 # Leia os arquivos:
 # 1. população residente estimada - UF e municípios - 2015 - SIDRA - tabela_6579.csv  
 # 2. população residente censo 2010 - UF e municípios - total e por sexo - SIDRA - tabela_1552.csv  
-# 3. população residente censo 2010 - por faixa etária -  UF - SIDRA - tabela_1552.csv
+# 3. população residente censo 2010 - por faixa etária -  UF - SIDRA - tabela_1552.csv.csv
 # 4. população residente censo 2010 - por faixa etária e sexo -  municípios - SIDRA - tabela_1552.csv
+
+#Leitura do banco de dados:
+
+dados_etaria <- read.csv("população residente censo 2010 - por faixa etária -  UF - SIDRA - tabela_1552 - população residente censo 2010 - por faixa etária -  UF - SIDRA - tabela_1552.csv",header = TRUE, sep =",")
+dados_etaria_sexo <- read.csv("população residente censo 2010 - por faixa etária e sexo -  municípios - SIDRA - tabela_1552 - população residente censo 2010 - por faixa etária e sexo -  municípios - SIDRA - tabela_1552.csv", header = TRUE, sep = ",")
+dados_estimados <- read.csv("população residente estimada - UF e municípios - 2015 - SIDRA - tabela_6579 - população residente estimada - UF e municípios - 2015 - SIDRA - tabela_6579.csv", header = TRUE, sep = ",")
+dados_total_sexo <- read.csv("população residente censo 2010 - UF e municípios - total e por sexo - SIDRA - tabela_1552 - população residente censo 2010 - UF e municípios - total e por sexo - SIDRA - tabela_1552.csv", header = TRUE, sep = ",")
+
+#Selecionando código da UF:
+
+UF = substr(as.character(dados_estimados$CODMUNRES), 1, 2)
+dados_estimados = dados_estimados[UF == "25",]
+
+UF = substr(as.character(dados_etaria$CODMUNRES), 1, 2)
+dados_etaria=  dados_etaria[UF == "25",]
+
+UF = substr(as.character(dados_etaria_sexo$CODMUNRES), 1, 2)
+dados_etaria_sexo = dados_etaria_sexo[UF == "25",]
+
+UF = substr(as.character(dados_total_sexo$CODMUNRES), 1, 2)
+dados_total_sexo = dados_total_sexo[UF == "25",]
+
 
 # A partir dos arquivos acima gere o banco de dados de nome SIDRA_UF com as seguintes variáveis:
 # 1  ANO    
@@ -896,9 +918,124 @@ write.csv(SIM_PB,"SIM_PB.csv")
 # 12 POPRC_F_15_49
 # 13 POPRC_F_50
 
+#Criando o banco base:
 
+
+base = data.frame(CODMUNRES =sort(unique(dados_estimados$CODMUNRES)))
+
+#Removendo a primeira linha dos bancos de dados para não dar conflito no merge:
+
+dados_estimados <- dados_estimados %>%
+  slice(-1)
+dados_total_sexo <- dados_total_sexo %>%
+  slice(-1)
+
+#Criando as variáveis:
+
+
+POPRE_T <- dados_estimados %>%
+  mutate(POPRE_T = as.numeric(POPRE_T)) %>%   
+  group_by(CODMUNRES) %>%
+  summarise(POPRE_T = sum(POPRE_T, na.rm = TRUE))
+
+base = merge(base,POPRE_T, by = "CODMUNRES", all.x = TRUE)
+
+pop_sexo<- dados_total_sexo %>%
+  mutate(
+    POPRC_T <- dados_total_sexo$POPRC_T,
+    POPRC_M <- dados_total_sexo$POPRC_M,
+    POPRC_F <- dados_total_sexo$POPRC_F
+  ) %>%
+  group_by(CODMUNRES) %>%
+  summarise(POPRC_T = sum(POPRC_T, na.rm = TRUE),
+            POPRC_M = sum(POPRC_M, na.rm = TRUE),
+            POPRC_F = sum(POPRC_F, na.rm = TRUE))
+
+base = merge(base,pop_sexo, by = "CODMUNRES", all.x = TRUE)
+
+
+POPRC_15 <- dados_etaria_sexo %>%
+  filter(F_IDADE %in% c("0 a 4 anos", "5 a 9 anos", "10 a 14 anos")) %>%
+  group_by(CODMUNRES) %>%
+  summarise(POPRC_15 = sum(POP, na.rm = TRUE))
+base = merge(base,POPRC_15, by = "CODMUNRES", all.x = TRUE)
+
+POPRC_15_49 <- dados_etaria_sexo %>%
+  filter(F_IDADE %in% c("15 a 19 anos","20 a 24 anos","25 a 29 anos",
+                        "30 a 34 anos","35 a 39 anos","40 a 44 anos","45 a 49 anos")) %>%
+  group_by(CODMUNRES) %>%
+  summarise(POPRC_15_49 = sum(POP, na.rm = TRUE))
+base = merge(base,POPRC_15_49, by = "CODMUNRES", all.x = TRUE)
+
+POPRC_50 <- dados_etaria_sexo %>%
+  filter(F_IDADE %in% c("50 a 54 anos","55 a 59 anos","60 a 64 anos","65 a 69 anos",
+                        "70 a 74 anos","75 a 79 anos","80 a 89 anos","90 a 99 anos","100 anos ou mais")
+  )%>%
+  group_by(CODMUNRES) %>%
+  summarise(POPRC_50 = sum(POP,na.rm = TRUE))
+base = merge(base,POPRC_50, by = "CODMUNRES", all.x = TRUE)
+
+
+POPRC_F_15 <- dados_etaria_sexo %>%
+  filter(F_IDADE %in% c("0 a 4 anos", "5 a 9 anos", "10 a 14 anos")) %>%
+  group_by(CODMUNRES) %>%
+  summarise(POPRC_F_15 = sum(POPF, na.rm = TRUE))
+base = merge(base,POPRC_F_15, by = "CODMUNRES", all.x = TRUE)
+
+POPRC_F_15_49 <- dados_etaria_sexo %>%
+  filter(F_IDADE %in% c("15 a 19 anos","20 a 24 anos","25 a 29 anos",
+                        "30 a 34 anos","35 a 39 anos","40 a 44 anos","45 a 49 anos"),
+  ) %>%   
+  group_by(CODMUNRES) %>%
+  summarise(POPRC_F_15_49 = sum(POPF, na.rm = TRUE)) 
+base = merge(base,POPRC_F_15_49, by = "CODMUNRES", all.x = TRUE)
+
+POPRC_F_50 <- dados_etaria_sexo %>%
+  filter(F_IDADE %in% c("50 a 54 anos","55 a 59 anos","60 a 64 anos","65 a 69 anos",
+                        "70 a 74 anos","75 a 79 anos","80 a 89 anos","90 a 99 anos","100 anos ou mais"),
+  ) %>% 
+  group_by(CODMUNRES) %>%
+  summarise(POPRC_F_50 = sum(POPF, na.rm = TRUE))
+base = merge(base,POPRC_F_50, by = "CODMUNRES", all.x = TRUE)
+
+base <- base %>%
+  mutate(ANO = 2015) %>%
+  select(ANO, everything())
+
+
+NIVEL <- dados_estimados %>%
+  select(CODMUNRES, NOME) %>%
+  rename(NIVEL = NOME)
+
+#Atribuindo a primeira linha como o total dos dados (exceto ANO,NIVEL E CODMUNRES):
+
+base <- base %>%
+  left_join(NIVEL, by = "CODMUNRES")
+base <- base %>%
+  select(ANO, NIVEL, CODMUNRES, everything())
+
+linha_estado <- base %>%
+  summarise(across(
+    .cols = -c(CODMUNRES, NIVEL, ANO),   
+    .fns = ~ sum(.x, na.rm = TRUE)
+  )) %>%
+  mutate(
+    CODMUNRES = 25,
+    NIVEL = "Paraíba",
+    ANO = 2015
+  )
+
+base <- base %>%
+  slice(-1)
+
+#Banco de dados final:
+
+SIDRA_PB <-  bind_rows(linha_estado, base)
+SIDRA_PB <- SIDRA_PB %>%
+  select(ANO,NIVEL,CODMUNRES, everything())
 
 # Exporte o arquivo em formato CSV
+write.csv(SIDRA_PB, "SIDRA_PB.csv")
 # Faça o commit com a mensagem "Script e dados TAREFA 3 - SIDRA"
 
 #3. Faça um commit em main com a mensagem "Script com orientações ETAPA 3 - SIDRA"
