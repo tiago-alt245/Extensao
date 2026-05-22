@@ -657,7 +657,7 @@ linha_estado[cols_contagem] = colSums(base[cols_contagem], na.rm = TRUE)
 linha_estado$CODMUNRES = 25
 SINASC_PB <- rbind(linha_estado, base)
 
-SINASC_PB$NIVEL <- c("UF", rep("MUNICIPIO", nrow(SINASC_AC)-1))
+SINASC_PB$NIVEL <- c("UF", rep("MUNICIPIO", nrow(SINASC_PB)-1))
 SINASC_PB$ANO   <- 2015
 
 SINASC_PB <- SINASC_PB[, c("ANO","NIVEL","CODMUNRES",
@@ -1039,6 +1039,77 @@ write.csv(SIDRA_PB, "SIDRA_PB.csv")
 # Faça o commit com a mensagem "Script e dados TAREFA 3 - SIDRA"
 
 #3. Faça um commit em main com a mensagem "Script com orientações ETAPA 3 - SIDRA"
+
+# Tarefa 2: Acesso aos bancos de dados do SINISA e obtenção da informação
+# Escreva os comandos da Tarefa 2 estando na branch OUTROS
+# Leia o arquivo agua e esgoto - município - 2015.csv
+# A partir do arquivo acima gere o banco de dados de nome SINISA_UF com as seguintes variáveis:
+# 1 ANO
+# 2 NIVEL
+# 3 CODMUNRES
+# 4 POPR_RA
+# 5 POPR_RE
+dados_agua <- read.csv("agua e esgoto - município - 2015 - agua e esgoto - município - 2015.csv", header  = TRUE, sep = ",")
+UF = substr(as.character(dados_agua$CODMUNRES), 1, 2)
+dados_agua = dados_agua[UF == "25",]
+
+base = data.frame(CODMUNRES =sort(unique(dados_agua$CODMUNRES)))
+
+POPR_RA <- dados_agua %>%
+  mutate(POPR_RA = as.numeric(POPR_RA) ) %>%
+  group_by(CODMUNRES) %>%
+  summarise(POPR_RA = sum(POPR_RA,na.rm = TRUE))
+
+base = merge(base, POPR_RA, by = "CODMUNRES", all.x = TRUE)
+
+POPR_RE <- dados_agua %>%
+  mutate(POPR_RE = as.numeric(POPR_RE)) %>%
+  group_by(CODMUNRES) %>%
+  summarise(POPR_RE = sum(POPR_RE, na.rm = TRUE))
+base = merge(base, POPR_RE, by = "CODMUNRES", all.x = TRUE)
+
+base <- base %>%
+  mutate(
+    ANO = 2015,              
+    NIVEL = "MUNICIPIO"      
+  ) %>%
+  relocate(ANO, NIVEL)      
+linha_UF <- base %>%
+  summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(
+    CODMUNRES = "25",  
+    ANO = 2015,
+    NIVEL = "UF"
+)
+
+base <- base %>% mutate(CODMUNRES = as.character(CODMUNRES))
+linha_UF <- linha_UF %>% mutate(CODMUNRES = as.character(CODMUNRES))
+linha_UF <- linha_UF %>%
+  select(ANO, NIVEL, CODMUNRES, everything())
+
+
+base <- bind_rows(linha_UF,base)
+
+SINISA_PB <- base
+# Exporte o arquivo em formato CSV 
+write.csv(SINISA_PB, "SINISA_PB.csv")
+# Faça o commit com a mensagem "Script e dados TAREFA 3 - SINISA"
+
+# Tarefa 3: Acesso aos bancos de dados do ATLAS e obtenção da informação
+# Escreva os comandos da Tarefa 3 estando na branch OUTROS
+# Leia os arquivos:
+# 1. códigos dos municípios - 2010.csv
+# 2. IDHM - 2010 (CENSO) e 2015 (PNAD) - total e por sexo - UF - Atlas Brasil.csv
+# 3. IDHM - 2010 - municípios - Atlas Brasil.csv
+# A partir do arquivo acima gere o banco de dados de nome ATLAS_UF com as seguintes variáveis:
+# 1 ANO # 2 NIVEL # 3 CODMUNRES # 4 IDHM_A # 5 IDHM_CA # 6 IDHM_CA_M
+# 7 IDHM_CA_F
+
+# Exporte o arquivo em formato CSV
+
+# Faça o commit com a mensagem "Script e dados TAREFA 3 - ATLAS
+#"*******************************************************************
+
 
 #####################################################################################################
 # ETAPA 4: GERAR BANCO DE DADOS FINAL DO ESTADO, BASEADO NAS ANÁLISES DE SINASC, SIM, IBGE, SNIS,...
