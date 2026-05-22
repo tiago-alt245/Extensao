@@ -1105,8 +1105,96 @@ write.csv(SINISA_PB, "SINISA_PB.csv")
 # 1 ANO # 2 NIVEL # 3 CODMUNRES # 4 IDHM_A # 5 IDHM_CA # 6 IDHM_CA_M
 # 7 IDHM_CA_F
 
-# Exporte o arquivo em formato CSV
+IDH_muni <- read.csv("IDHM - 2010 - municípios - Atlas Brasil - IDHM - 2010 - municípios - Atlas Brasil.csv", header = TRUE, sep = ",")
+IDH_censo <- read.csv("IDHM - 2010 (CENSO) e 2015 (PNAD) - total e por sexo - UF - Atlas Brasil - IDHM - 2010 (CENSO) e 2015 (PNAD) - total e por sexo - UF - Atlas Brasil.csv", header = TRUE, sep = ",")
+codigo <- read.csv("códigos dos municípios - 2010 - códigos dos municípios - 2010.csv", header = TRUE, sep = ",")
 
+filtro <- str_sub(as.character(IDH_muni$município), 1, -5)
+IDH_muni$município <- filtro
+
+library(stringr)
+
+IDH_muni$município <- str_to_title(trimws(IDH_muni$município))
+codigo$município   <- str_to_title(trimws(codigo$município))
+
+
+IDH_codigo = merge(IDH_muni, codigo, by = "município", all.x = TRUE)
+
+
+UF = substr(as.character(IDH_codigo$CODMUNRES),1,2)
+IDH_codigo = IDH_codigo[UF == "25",]
+
+base = data.frame(CODMUNRES = sort(unique(IDH_codigo$CODMUNRES)))
+
+base <- base %>%
+  mutate(
+    ANO = 2015,              
+    NIVEL = "MUNICIPIO"      
+  ) %>%
+  relocate(ANO, NIVEL)      
+linha_UF <- base %>%
+  summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(
+    CODMUNRES = "25",  
+    ANO = 2015,
+    NIVEL = "UF"
+)
+
+base <- base %>% mutate(CODMUNRES = as.character(CODMUNRES))
+linha_UF <- linha_UF %>% mutate(CODMUNRES = as.character(CODMUNRES))
+linha_UF <- linha_UF %>%
+  select(ANO, NIVEL, CODMUNRES, everything())
+base <- bind_rows(linha_UF,base)
+
+IDHM_A <- IDH_censo %>%
+  filter(UF == "Paraíba") %>%         
+  summarise(IDHM_A = IDHM_2015)
+
+IDHM_CA <- IDH_codigo %>%
+  mutate(
+    IDHM_CA = as.numeric(gsub(",", ".", IDHM_2010))
+  ) %>%
+  group_by(CODMUNRES) %>%
+  summarise(IDHM_CA = round(mean(IDHM_CA, na.rm = TRUE),3))
+
+IDHM_CA_M <- IDH_censo %>%
+  filter(UF == "Paraíba") %>%         
+  summarise(IDHM_CA_M = IDHM_2010_M)
+
+IDHM_CA_F <-  IDH_censo %>%
+  filter(UF == "Paraíba") %>%         
+  summarise(IDHM_CA_F= IDHM_2010_F)
+
+IDHM_CA <- IDHM_CA %>%
+  mutate(CODMUNRES = as.character(CODMUNRES))
+
+base <- base %>%
+  left_join(IDHM_CA, by = "CODMUNRES")
+
+linha_UF <- base %>%
+  filter(NIVEL == "UF") %>%
+  mutate(
+    IDHM_A    = IDHM_A$IDHM_A,
+    IDHM_CA_M = IDHM_CA_M$IDHM_CA_M,
+    IDHM_CA_F = IDHM_CA_F$IDHM_CA_F
+  )
+
+base <- base %>%
+  filter(NIVEL != "UF") %>%
+  bind_rows(linha_UF)
+
+base <- base %>%
+  arrange(desc(NIVEL))   
+
+base <- base %>%
+  select(ANO,NIVEL,CODMUNRES,IDHM_A,IDHM_CA, everything())
+
+ATLAS_PB <- base
+
+
+
+# Exporte o arquivo em formato CSV
+write.csv(ATLAS_PB,"ATLAS_PB.csv")
 # Faça o commit com a mensagem "Script e dados TAREFA 3 - ATLAS
 #"*******************************************************************
 
