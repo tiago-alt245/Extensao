@@ -761,7 +761,7 @@ dados_sim1$TPMORTEOCO = factor(dados_sim1$TPMORTEOCO, levels = c(1,2,3,4,5,8), l
 dados_sim1$OBITOGRAV = factor(dados_sim1$OBITOGRAV, levels = c(1,2), labels = c("Sim", "Não"))
 dados_sim1$OBITOPUERP = factor(dados_sim1$OBITOPUERP, levels = c(1,2,3), labels = c("Sim, até 42 dias", "Sim, de 43 dias a 1 ano", "Não"))
 dados_sim1$TPOBITOCOR = factor(dados_sim1$TPOBITOCOR, levels = c(1,2,3,4,5,6,7,8,9), labels = c("Durante a gestação", "Durante o abortamento", "Após o abortamento", "No parto ou até 1 hora após o parto", "No puerpério - até 42 dias após o parto", "Entre 43 dias e até 1 ano após o parto", "A investigação não identificou o momento do óbito", "Mais de um ano após o parto", "O óbito não ocorreu nas circuntâncias anteriores"))
- 
+
 # Tarefa 7. Crie um banco de dados, de nome SIM_UF.csv (Exemplo: SIM_RJ.csv), contendo as 41 variáveis listadas no arquivo “Variáveis - Projeto - Tarefa 7 da Etapa 2.pdf”
 # Atenção:
 # 1. Para informações gerais utilize CAUSABAS, SEXO e IDADE
@@ -774,15 +774,15 @@ dados_sim1$IDADE_VALOR <- as.numeric(substr(dados_sim1$IDADE_STR, 2, 3))
 
 # Convertendo a Idade para anos absolutos:
 dados_sim1$IDADE_ANOS <- ifelse(dados_sim1$IDADE_TIPO == 4, dados_sim1$IDADE_VALOR,
-                                 ifelse(dados_sim1$IDADE_TIPO == 5, dados_sim1$IDADE_VALOR + 100,
-                                        ifelse(dados_sim1$IDADE_TIPO %in% c(0, 1, 2, 3), 0, NA)))
+                                ifelse(dados_sim1$IDADE_TIPO == 5, dados_sim1$IDADE_VALOR + 100,
+                                       ifelse(dados_sim1$IDADE_TIPO %in% c(0, 1, 2, 3), 0, NA)))
 
 # Convertendo a Idade para dias absolutos:
 dados_sim1$IDADE_DIAS <- ifelse(dados_sim1$IDADE_TIPO %in% c(0, 1), 0,
-                                 ifelse(dados_sim1$IDADE_TIPO == 2, dados_sim1$IDADE_VALOR,
-                                        ifelse(dados_sim1$IDADE_TIPO == 3, dados_sim1$IDADE_VALOR * 30,
-                                               ifelse(dados_sim1$IDADE_TIPO == 4, dados_sim1$IDADE_VALOR * 365,
-                                                      ifelse(dados_sim1$IDADE_TIPO == 5, (dados_sim1$IDADE_VALOR + 100) * 365, NA)))))
+                                ifelse(dados_sim1$IDADE_TIPO == 2, dados_sim1$IDADE_VALOR,
+                                       ifelse(dados_sim1$IDADE_TIPO == 3, dados_sim1$IDADE_VALOR * 30,
+                                              ifelse(dados_sim1$IDADE_TIPO == 4, dados_sim1$IDADE_VALOR * 365,
+                                                     ifelse(dados_sim1$IDADE_TIPO == 5, (dados_sim1$IDADE_VALOR + 100) * 365, NA)))))
 
 #Variáveis:
 
@@ -819,7 +819,7 @@ vari <- function(df) {
       TONT_A = sum(TIPOBITO == "Não fetal" & IDADE_DIAS <= 27 & RACACOR == "Amarela", na.rm = TRUE),
       TONT_PD = sum(TIPOBITO == "Não fetal" & IDADE_DIAS <= 27 & RACACOR == "Parda", na.rm = TRUE),
       TONT_I = sum(TIPOBITO == "Não fetal" & IDADE_DIAS <= 27 & RACACOR == "Indígena", na.rm = TRUE),
-     
+      
       #Informações maternas:
       
       TO_MT = sum(TPMORTEOCO %in% c("Na gravidez", "No parto", "No abortamento", "Até 42 dias após o parto", "de 43 dias a 1 ano ", "Não ocorreu nestes períodos"), na.rm = TRUE),
@@ -837,7 +837,7 @@ vari <- function(df) {
       TO_MT_P_EM = sum(TPMORTEOCO %in% c("Na gravidez","No parto","No abortamento","Até 42 dias após o parto") & ESC2010 == "Médio (antigo 2° Grau)", na.rm = TRUE),
       TO_MT_P_ESI = sum(TPMORTEOCO %in% c("Na gravidez","No parto","No abortamento","Até 42 dias após o parto") & ESC2010 == "Superior incompleto", na.rm = TRUE),
       TO_MT_P_ESC = sum(TPMORTEOCO %in% c("Na gravidez","No parto","No abortamento","Até 42 dias após o parto") & ESC2010 == "Superior completo", na.rm = TRUE)
-      )
+    )
 }
 
 #Agregação das variáveis ANO e NÍVEL:
@@ -1051,6 +1051,33 @@ dados_agua <- read.csv("agua e esgoto - município - 2015 - agua e esgoto - muni
 UF = substr(as.character(dados_agua$CODMUNRES), 1, 2)
 dados_agua = dados_agua[UF == "25",]
 
+
+# Exporte o arquivo em formato CSV
+
+# Faça o commit com a mensagem "Script e dados TAREFA 3 - SINISA"
+
+# Tarefa 3: Acesso aos bancos de dados do ATLAS e obtenção da informação
+# Escreva os comandos da Tarefa 3 estando na branch OUTROS
+# Leia os arquivos:
+# 1. códigos dos municípios - 2010.csv
+# 2. IDHM - 2010 (CENSO) e 2015 (PNAD) - total e por sexo - UF - Atlas Brasil.csv
+# 3. IDHM - 2010 - municípios - Atlas Brasil.csv
+# A partir do arquivo acima gere o banco de dados de nome ATLAS_UF com as seguintes variáveis:
+# 1 ANO # 2 NIVEL # 3 CODMUNRES # 4 IDHM_A # 5 IDHM_CA # 6 IDHM_CA_M
+# 7 IDHM_CA_F
+
+# Exporte o arquivo em formato CSV
+
+# Faça o commit com a mensagem "Script e dados TAREFA 3 - ATLAS
+#"*******************************************************************
+
+
+#####################################################################################################
+# ETAPA 4: GERAR BANCO DE DADOS FINAL DO ESTADO, BASEADO NAS ANÁLISES DE SINASC, SIM, IBGE, SNIS,...
+######################################################################################################
+# Só inicie esta Etapa quando a professora orientar
+# ESTANDO NA BRANCH SINASC, NÃO ALTERE NADA NO SCRIPT REFERENTE A ETAPA 4
+
 base = data.frame(CODMUNRES =sort(unique(dados_agua$CODMUNRES)))
 
 POPR_RA <- dados_agua %>%
@@ -1078,7 +1105,7 @@ linha_UF <- base %>%
     CODMUNRES = "25",  
     ANO = 2015,
     NIVEL = "UF"
-)
+  )
 
 base <- base %>% mutate(CODMUNRES = as.character(CODMUNRES))
 linha_UF <- linha_UF %>% mutate(CODMUNRES = as.character(CODMUNRES))
@@ -1136,7 +1163,7 @@ linha_UF <- base %>%
     CODMUNRES = "25",  
     ANO = 2015,
     NIVEL = "UF"
-)
+  )
 
 base <- base %>% mutate(CODMUNRES = as.character(CODMUNRES))
 linha_UF <- linha_UF %>% mutate(CODMUNRES = as.character(CODMUNRES))
