@@ -1278,6 +1278,30 @@ DA_PB <- rbind(DA_PB[nrow(DA_PB), ], DA_PB[-nrow(DA_PB), ])
 
 # Tarefa 2: Acrescentar no banco DA_UF os indicadores TFG, TMG, RMM, TMM, TMM_P, TMN, TMN_P, TMN_T e TMI e chamar o banco de BDEM_UF_2015
 
+#Indicadores:
+vari <- function(df) {
+  df %>%
+    group_by(CODMUNRES) %>%
+    summarise(
+      TFG = round((TN/POPRC_F_15_49) * 1000, 2),
+      TMG = round((TO/POPRE_T) * 1000, 2),
+      RMM = round((TO_MT/TN) * 100000, 2),
+      TMM = round((TO_MT/POPRC_F_15_49) * 100000, 2),
+      TMM_P = round((TO_MT_P/POPRC_F_15_49) * 100000, 2),
+      TMI = round(((TO_NT + TO_PNT)/TN) * 1000, 2)
+    )
+}      
+
+#Vetor "vari" se transformando em um banco de dados:
+indicadores <- vari(DA_PB)
+
+
+#Juntando DA_PB com os indicadores:
+DA_PB <- left_join(DA_PB, indicadores, by = "CODMUNRES")
+
+#Renomenado o banco de dados e exportando o arquivo:
+BDEM_PB_2015 <- DA_PB
+write.csv(BDEM_PB_2015,"BDEM_PB_2015.csv")
 
 
 # Junta os indicadores ao banco original
