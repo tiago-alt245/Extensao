@@ -883,10 +883,10 @@ write.csv(SIM_PB,"SIM_PB.csv")
 
 #Leitura do banco de dados:
 
-dados_etaria <- read.csv("população residente censo 2010 - por faixa etária -  UF - SIDRA - tabela_1552 - população residente censo 2010 - por faixa etária -  UF - SIDRA - tabela_1552.csv",header = TRUE, sep =",")
-dados_etaria_sexo <- read.csv("população residente censo 2010 - por faixa etária e sexo -  municípios - SIDRA - tabela_1552 - população residente censo 2010 - por faixa etária e sexo -  municípios - SIDRA - tabela_1552.csv", header = TRUE, sep = ",")
-dados_estimados <- read.csv("população residente estimada - UF e municípios - 2015 - SIDRA - tabela_6579 - população residente estimada - UF e municípios - 2015 - SIDRA - tabela_6579.csv", header = TRUE, sep = ",")
-dados_total_sexo <- read.csv("população residente censo 2010 - UF e municípios - total e por sexo - SIDRA - tabela_1552 - população residente censo 2010 - UF e municípios - total e por sexo - SIDRA - tabela_1552.csv", header = TRUE, sep = ",")
+dados_etaria <- read.csv("população residente censo 2010 - por faixa etária -  UF - SIDRA - tabela_1552.csv",header = TRUE, sep =",")
+dados_etaria_sexo <- read.csv("população residente censo 2010 - por faixa etária e sexo -  municípios - SIDRA - tabela_1552.csv", header = TRUE, sep = ",")
+dados_estimados <- read.csv("população residente estimada - UF e municípios - 2015 - SIDRA - tabela_6579.csv", header = TRUE, sep = ",")
+dados_total_sexo <- read.csv("população residente censo 2010 - UF e municípios - total e por sexo - SIDRA - tabela_1552.csv", header = TRUE, sep = ",")
 
 #Selecionando código da UF:
 
@@ -924,7 +924,7 @@ dados_total_sexo = dados_total_sexo[UF == "25",]
 base = data.frame(CODMUNRES =sort(unique(dados_estimados$CODMUNRES)))
 
 #Removendo a primeira linha dos bancos de dados para não dar conflito no merge:
-
+library(dplyr)
 dados_estimados <- dados_estimados %>%
   slice(-1)
 dados_total_sexo <- dados_total_sexo %>%
@@ -1010,27 +1010,25 @@ NIVEL <- dados_estimados %>%
 #Atribuindo a primeira linha como o total dos dados (exceto ANO,NIVEL E CODMUNRES):
 
 base <- base %>%
-  left_join(NIVEL, by = "CODMUNRES")
-base <- base %>%
-  select(ANO, NIVEL, CODMUNRES, everything())
-
-linha_estado <- base %>%
-  summarise(across(
-    .cols = -c(CODMUNRES, NIVEL, ANO),   
-    .fns = ~ sum(.x, na.rm = TRUE)
-  )) %>%
   mutate(
-    CODMUNRES = 25,
-    NIVEL = "Paraíba",
-    ANO = 2015
-  )
+    ANO = 2015,              
+    NIVEL = "MUNICIPIO"      
+  ) %>%
+  relocate(ANO, NIVEL)      
+linha_UF <- base %>%
+  summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>%
+  mutate(
+    CODMUNRES = "25",  
+    ANO = 2015,
+    NIVEL = "UF")
+
 
 base <- base %>%
   slice(-1)
 
 #Banco de dados final:
-
-SIDRA_PB <-  bind_rows(linha_estado, base)
+SIDRA_PB <- base
+SIDRA_PB <- rbind(linha_UF, base)
 SIDRA_PB <- SIDRA_PB %>%
   select(ANO,NIVEL,CODMUNRES, everything())
 
