@@ -718,6 +718,7 @@ write.csv(dados_sim1, "dados_sim2.csv")
 table(dados_sim1$TIPOBITO)
 table(dados_sim1$SEXO)
 table(dados_sim1$RACACOR)
+
 table(dados_sim1$TPMORTEOCO)
 table(dados_sim1$OBITOGRAV)
 table(dados_sim1$OBITOPUERP)
@@ -1026,6 +1027,7 @@ linha_UF <- base %>%
 base <- base %>%
   slice(-1)
 
+
 #Banco de dados final:
 SIDRA_PB <- base
 SIDRA_PB <- rbind(linha_UF, base)
@@ -1134,10 +1136,13 @@ IDH_muni <- read.csv("IDHM - 2010 - municípios - Atlas Brasil - IDHM - 2010 - m
 IDH_censo <- read.csv("IDHM - 2010 (CENSO) e 2015 (PNAD) - total e por sexo - UF - Atlas Brasil - IDHM - 2010 (CENSO) e 2015 (PNAD) - total e por sexo - UF - Atlas Brasil.csv", header = TRUE, sep = ",")
 codigo <- read.csv("códigos dos municípios - 2010 - códigos dos municípios - 2010.csv", header = TRUE, sep = ",")
 
+
+library(stringr)
+
+
 filtro <- str_sub(as.character(IDH_muni$município), 1, -5)
 IDH_muni$município <- filtro
 
-library(stringr)
 
 IDH_muni$município <- str_to_title(trimws(IDH_muni$município))
 codigo$município   <- str_to_title(trimws(codigo$município))
@@ -1235,13 +1240,50 @@ write.csv(ATLAS_PB,"ATLAS_PB.csv")
 # ANO, NIVEL, CODMUNRES (uma única vez), variáveis do SIDRA, do ATLAS, do SINASC, do SIM e da SINISA. No merge deve constar qualquer município que esteja em pelo menos um dos bancos
 # Chamar o banco de dados de DA_UF
 
-# Após o merge dos bancos, fazer commit “Script e dados agregados da UF”
 
+#Garantindo o mesmo tipo de coluna para os bancos:
+
+SIDRA_PB  <- SIDRA_PB %>%
+  mutate(CODMUNRES = as.character(CODMUNRES))
+ATLAS_PB  <- ATLAS_PB %>%
+  mutate(CODMUNRES = as.character(CODMUNRES))
+SINASC_PB <- SINASC_PB %>%
+  mutate(CODMUNRES = as.character(CODMUNRES))
+SIM_PB <- SIM_PB %>%
+  mutate(CODMUNRES = as.character(CODMUNRES))
+SINISA_PB <- SINISA_PB %>% 
+  mutate(CODMUNRES = as.character(CODMUNRES))
+
+#Uma alteração no meu banco de dados,pois havia uma linha a mais o SIM_PB:
+SIM_PB <- SIM_PB[-2, ]
+
+#Merge dos bancos:
+
+BD1 <- merge(SIDRA_PB, ATLAS_PB, by = c("ANO","NIVEL","CODMUNRES"), all.x = TRUE)
+BD2 <- merge(SINASC_PB,SIM_PB, by = c("ANO","NIVEL","CODMUNRES"), all.x = TRUE)
+BD2 <- merge(BD2, SINISA_PB, by = c("ANO","NIVEL","CODMUNRES"), all.x = TRUE)
+
+#Ajeitando a linha da UF após o merge:
+BD2 <- rbind(BD2[nrow(BD2), ], BD2[-nrow(BD2), ])
+BD1 <- rbind(BD1[nrow(BD1), ], BD1[-nrow(BD1), ])
+
+#Remoção do último dígito de CODMUNRES do BD1 para que o merge final possa ser feito:
+BD1$CODMUNRES[-1] <- substr(BD1$CODMUNRES[-1], 1, nchar(BD1$CODMUNRES[-1]) - 1)
+
+#Merge final:
+DA_PB <- merge(BD1,BD2, by = c("ANO","NIVEL","CODMUNRES"), all.x = TRUE)
+DA_PB <- rbind(DA_PB[nrow(DA_PB), ], DA_PB[-nrow(DA_PB), ])
+
+# Após o merge dos bancos, fazer commit “Script e dados agregados da UF”
 
 # Tarefa 2: Acrescentar no banco DA_UF os indicadores TFG, TMG, RMM, TMM, TMM_P, TMN, TMN_P, TMN_T e TMI e chamar o banco de BDEM_UF_2015
 
-# Após a criação do banco, fazer commit “Script e dados BDEM_UF_2015”
 
+
+# Junta os indicadores ao banco original
+
+
+# Após a criação do banco, fazer commit “Script e dados BDEM_UF_2015”
 # Exporte o arquivo em formato CSV
 # Faça o commit com a mensagem "Script e dados BDEM"
 
